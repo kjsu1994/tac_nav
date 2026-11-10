@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "kind": "protomaps-v4",
+  "name": "한반도 기본 2D",
+  "bounds": [
+    124.0,
+    32.0,
+    132.0,
+    43.2
+  ],
+  "minZoom": 0,
+  "maxZoom": 13,
+  "resolutionMeters": 0,
+  "captured": "2026-11-09T04:00:00Z",
+  "produced": "2026-11-10",
+  "source": "© OpenStreetMap contributors · Natural Earth · Protomaps",
+  "license": "ODbL produced work · https://www.openstreetmap.org/copyright",
+  "tiles": {
+    "path": "korea-2d-20261109.pmtiles",
+    "bytes": 296502596,
+    "sha256": "ef1048ef03cc977e287f0e3c29048d97e41bc6d1c3bd79205f4efbbaeec90e41"
+  }
+}

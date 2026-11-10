@@ -1,0 +1,15 @@
+/.tools/
+/.gradle/
+/local.properties
+/**/build/
+*.jks
+*.keystore
+.idea/
+/**/.cxx/
+**/__pycache__/
+/.kotlin/
+/.map-cache/
+/samples/Korean_Peninsula_*.tacmap
+/releases/
+
+/app/src/main/assets/maps/*.pmtiles

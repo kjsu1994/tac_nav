@@ -1,0 +1,630 @@
+{
+  "manifest": {
+    "version": 1,
+    "kind": "raster",
+    "name": "한반도 전체 · ESA 2021 연간 합성영상",
+    "bounds": [
+      124.0,
+      32.0,
+      132.0,
+      43.2
+    ],
+    "minZoom": 0,
+    "maxZoom": 14,
+    "resolutionMeters": 10.0,
+    "captured": "2021-01-01/2021-12-31",
+    "produced": "2026-11-10",
+    "source": "© ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium",
+    "license": "CC BY 4.0 https://creativecommons.org/licenses/by/4.0/",
+    "tiles": {
+      "path": "imagery.pmtiles",
+      "bytes": 1781682944,
+      "sha256": "25bb0080f2a34de2884c28757bbdbc22884788ae2fc14764c1a7b0ef1f649ead"
+    }
+  },
+  "requestedBounds": [
+    124.0,
+    32.0,
+    132.0,
+    43.2
+  ],
+  "sources": [
+    {
+      "key": "rgbnir/2021/N32/ESA_WorldCover_10m_2021_v200_N32E128_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N32/ESA_WorldCover_10m_2021_v200_N32E128_S2RGBNIR.tif",
+      "bytes": 96662874,
+      "lat": 32,
+      "lon": 128
+    },
+    {
+      "key": "rgbnir/2021/N32/ESA_WorldCover_10m_2021_v200_N32E129_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N32/ESA_WorldCover_10m_2021_v200_N32E129_S2RGBNIR.tif",
+      "bytes": 134838562,
+      "lat": 32,
+      "lon": 129
+    },
+    {
+      "key": "rgbnir/2021/N32/ESA_WorldCover_10m_2021_v200_N32E130_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N32/ESA_WorldCover_10m_2021_v200_N32E130_S2RGBNIR.tif",
+      "bytes": 492469876,
+      "lat": 32,
+      "lon": 130
+    },
+    {
+      "key": "rgbnir/2021/N32/ESA_WorldCover_10m_2021_v200_N32E131_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N32/ESA_WorldCover_10m_2021_v200_N32E131_S2RGBNIR.tif",
+      "bytes": 459772658,
+      "lat": 32,
+      "lon": 131
+    },
+    {
+      "key": "rgbnir/2021/N33/ESA_WorldCover_10m_2021_v200_N33E125_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N33/ESA_WorldCover_10m_2021_v200_N33E125_S2RGBNIR.tif",
+      "bytes": 5581281,
+      "lat": 33,
+      "lon": 125
+    },
+    {
+      "key": "rgbnir/2021/N33/ESA_WorldCover_10m_2021_v200_N33E126_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N33/ESA_WorldCover_10m_2021_v200_N33E126_S2RGBNIR.tif",
+      "bytes": 227507878,
+      "lat": 33,
+      "lon": 126
+    },
+    {
+      "key": "rgbnir/2021/N33/ESA_WorldCover_10m_2021_v200_N33E127_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N33/ESA_WorldCover_10m_2021_v200_N33E127_S2RGBNIR.tif",
+      "bytes": 17839802,
+      "lat": 33,
+      "lon": 127
+    },
+    {
+      "key": "rgbnir/2021/N33/ESA_WorldCover_10m_2021_v200_N33E128_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N33/ESA_WorldCover_10m_2021_v200_N33E128_S2RGBNIR.tif",
+      "bytes": 25932734,
+      "lat": 33,
+      "lon": 128
+    },
+    {
+      "key": "rgbnir/2021/N33/ESA_WorldCover_10m_2021_v200_N33E129_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N33/ESA_WorldCover_10m_2021_v200_N33E129_S2RGBNIR.tif",
+      "bytes": 269462899,
+      "lat": 33,
+      "lon": 129
+    },
+    {
+      "key": "rgbnir/2021/N33/ESA_WorldCover_10m_2021_v200_N33E130_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N33/ESA_WorldCover_10m_2021_v200_N33E130_S2RGBNIR.tif",
+      "bytes": 500411990,
+      "lat": 33,
+      "lon": 130
+    },
+    {
+      "key": "rgbnir/2021/N33/ESA_WorldCover_10m_2021_v200_N33E131_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N33/ESA_WorldCover_10m_2021_v200_N33E131_S2RGBNIR.tif",
+      "bytes": 388884327,
+      "lat": 33,
+      "lon": 131
+    },
+    {
+      "key": "rgbnir/2021/N34/ESA_WorldCover_10m_2021_v200_N34E124_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N34/ESA_WorldCover_10m_2021_v200_N34E124_S2RGBNIR.tif",
+      "bytes": 3263022,
+      "lat": 34,
+      "lon": 124
+    },
+    {
+      "key": "rgbnir/2021/N34/ESA_WorldCover_10m_2021_v200_N34E125_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N34/ESA_WorldCover_10m_2021_v200_N34E125_S2RGBNIR.tif",
+      "bytes": 172217419,
+      "lat": 34,
+      "lon": 125
+    },
+    {
+      "key": "rgbnir/2021/N34/ESA_WorldCover_10m_2021_v200_N34E126_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N34/ESA_WorldCover_10m_2021_v200_N34E126_S2RGBNIR.tif",
+      "bytes": 456178875,
+      "lat": 34,
+      "lon": 126
+    },
+    {
+      "key": "rgbnir/2021/N34/ESA_WorldCover_10m_2021_v200_N34E127_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N34/ESA_WorldCover_10m_2021_v200_N34E127_S2RGBNIR.tif",
+      "bytes": 388486924,
+      "lat": 34,
+      "lon": 127
+    },
+    {
+      "key": "rgbnir/2021/N34/ESA_WorldCover_10m_2021_v200_N34E128_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N34/ESA_WorldCover_10m_2021_v200_N34E128_S2RGBNIR.tif",
+      "bytes": 172127761,
+      "lat": 34,
+      "lon": 128
+    },
+    {
+      "key": "rgbnir/2021/N34/ESA_WorldCover_10m_2021_v200_N34E129_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N34/ESA_WorldCover_10m_2021_v200_N34E129_S2RGBNIR.tif",
+      "bytes": 101288752,
+      "lat": 34,
+      "lon": 129
+    },
+    {
+      "key": "rgbnir/2021/N34/ESA_WorldCover_10m_2021_v200_N34E130_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N34/ESA_WorldCover_10m_2021_v200_N34E130_S2RGBNIR.tif",
+      "bytes": 67123487,
+      "lat": 34,
+      "lon": 130
+    },
+    {
+      "key": "rgbnir/2021/N34/ESA_WorldCover_10m_2021_v200_N34E131_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N34/ESA_WorldCover_10m_2021_v200_N34E131_S2RGBNIR.tif",
+      "bytes": 383523691,
+      "lat": 34,
+      "lon": 131
+    },
+    {
+      "key": "rgbnir/2021/N35/ESA_WorldCover_10m_2021_v200_N35E125_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N35/ESA_WorldCover_10m_2021_v200_N35E125_S2RGBNIR.tif",
+      "bytes": 21152746,
+      "lat": 35,
+      "lon": 125
+    },
+    {
+      "key": "rgbnir/2021/N35/ESA_WorldCover_10m_2021_v200_N35E126_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N35/ESA_WorldCover_10m_2021_v200_N35E126_S2RGBNIR.tif",
+      "bytes": 485794471,
+      "lat": 35,
+      "lon": 126
+    },
+    {
+      "key": "rgbnir/2021/N35/ESA_WorldCover_10m_2021_v200_N35E127_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N35/ESA_WorldCover_10m_2021_v200_N35E127_S2RGBNIR.tif",
+      "bytes": 615615479,
+      "lat": 35,
+      "lon": 127
+    },
+    {
+      "key": "rgbnir/2021/N35/ESA_WorldCover_10m_2021_v200_N35E128_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N35/ESA_WorldCover_10m_2021_v200_N35E128_S2RGBNIR.tif",
+      "bytes": 606174025,
+      "lat": 35,
+      "lon": 128
+    },
+    {
+      "key": "rgbnir/2021/N35/ESA_WorldCover_10m_2021_v200_N35E129_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N35/ESA_WorldCover_10m_2021_v200_N35E129_S2RGBNIR.tif",
+      "bytes": 252193473,
+      "lat": 35,
+      "lon": 129
+    },
+    {
+      "key": "rgbnir/2021/N36/ESA_WorldCover_10m_2021_v200_N36E125_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N36/ESA_WorldCover_10m_2021_v200_N36E125_S2RGBNIR.tif",
+      "bytes": 58349150,
+      "lat": 36,
+      "lon": 125
+    },
+    {
+      "key": "rgbnir/2021/N36/ESA_WorldCover_10m_2021_v200_N36E126_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N36/ESA_WorldCover_10m_2021_v200_N36E126_S2RGBNIR.tif",
+      "bytes": 481349564,
+      "lat": 36,
+      "lon": 126
+    },
+    {
+      "key": "rgbnir/2021/N36/ESA_WorldCover_10m_2021_v200_N36E127_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N36/ESA_WorldCover_10m_2021_v200_N36E127_S2RGBNIR.tif",
+      "bytes": 625475197,
+      "lat": 36,
+      "lon": 127
+    },
+    {
+      "key": "rgbnir/2021/N36/ESA_WorldCover_10m_2021_v200_N36E128_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N36/ESA_WorldCover_10m_2021_v200_N36E128_S2RGBNIR.tif",
+      "bytes": 594565176,
+      "lat": 36,
+      "lon": 128
+    },
+    {
+      "key": "rgbnir/2021/N36/ESA_WorldCover_10m_2021_v200_N36E129_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N36/ESA_WorldCover_10m_2021_v200_N36E129_S2RGBNIR.tif",
+      "bytes": 296226464,
+      "lat": 36,
+      "lon": 129
+    },
+    {
+      "key": "rgbnir/2021/N37/ESA_WorldCover_10m_2021_v200_N37E124_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N37/ESA_WorldCover_10m_2021_v200_N37E124_S2RGBNIR.tif",
+      "bytes": 56197134,
+      "lat": 37,
+      "lon": 124
+    },
+    {
+      "key": "rgbnir/2021/N37/ESA_WorldCover_10m_2021_v200_N37E125_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N37/ESA_WorldCover_10m_2021_v200_N37E125_S2RGBNIR.tif",
+      "bytes": 227063757,
+      "lat": 37,
+      "lon": 125
+    },
+    {
+      "key": "rgbnir/2021/N37/ESA_WorldCover_10m_2021_v200_N37E126_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N37/ESA_WorldCover_10m_2021_v200_N37E126_S2RGBNIR.tif",
+      "bytes": 519639714,
+      "lat": 37,
+      "lon": 126
+    },
+    {
+      "key": "rgbnir/2021/N37/ESA_WorldCover_10m_2021_v200_N37E127_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N37/ESA_WorldCover_10m_2021_v200_N37E127_S2RGBNIR.tif",
+      "bytes": 630522741,
+      "lat": 37,
+      "lon": 127
+    },
+    {
+      "key": "rgbnir/2021/N37/ESA_WorldCover_10m_2021_v200_N37E128_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N37/ESA_WorldCover_10m_2021_v200_N37E128_S2RGBNIR.tif",
+      "bytes": 590584420,
+      "lat": 37,
+      "lon": 128
+    },
+    {
+      "key": "rgbnir/2021/N37/ESA_WorldCover_10m_2021_v200_N37E129_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N37/ESA_WorldCover_10m_2021_v200_N37E129_S2RGBNIR.tif",
+      "bytes": 142579286,
+      "lat": 37,
+      "lon": 129
+    },
+    {
+      "key": "rgbnir/2021/N37/ESA_WorldCover_10m_2021_v200_N37E130_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N37/ESA_WorldCover_10m_2021_v200_N37E130_S2RGBNIR.tif",
+      "bytes": 26293293,
+      "lat": 37,
+      "lon": 130
+    },
+    {
+      "key": "rgbnir/2021/N37/ESA_WorldCover_10m_2021_v200_N37E131_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N37/ESA_WorldCover_10m_2021_v200_N37E131_S2RGBNIR.tif",
+      "bytes": 9775971,
+      "lat": 37,
+      "lon": 131
+    },
+    {
+      "key": "rgbnir/2021/N38/ESA_WorldCover_10m_2021_v200_N38E124_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N38/ESA_WorldCover_10m_2021_v200_N38E124_S2RGBNIR.tif",
+      "bytes": 92934612,
+      "lat": 38,
+      "lon": 124
+    },
+    {
+      "key": "rgbnir/2021/N38/ESA_WorldCover_10m_2021_v200_N38E125_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N38/ESA_WorldCover_10m_2021_v200_N38E125_S2RGBNIR.tif",
+      "bytes": 647163081,
+      "lat": 38,
+      "lon": 125
+    },
+    {
+      "key": "rgbnir/2021/N38/ESA_WorldCover_10m_2021_v200_N38E126_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N38/ESA_WorldCover_10m_2021_v200_N38E126_S2RGBNIR.tif",
+      "bytes": 691055005,
+      "lat": 38,
+      "lon": 126
+    },
+    {
+      "key": "rgbnir/2021/N38/ESA_WorldCover_10m_2021_v200_N38E127_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N38/ESA_WorldCover_10m_2021_v200_N38E127_S2RGBNIR.tif",
+      "bytes": 662231775,
+      "lat": 38,
+      "lon": 127
+    },
+    {
+      "key": "rgbnir/2021/N38/ESA_WorldCover_10m_2021_v200_N38E128_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N38/ESA_WorldCover_10m_2021_v200_N38E128_S2RGBNIR.tif",
+      "bytes": 292112440,
+      "lat": 38,
+      "lon": 128
+    },
+    {
+      "key": "rgbnir/2021/N39/ESA_WorldCover_10m_2021_v200_N39E124_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N39/ESA_WorldCover_10m_2021_v200_N39E124_S2RGBNIR.tif",
+      "bytes": 264870209,
+      "lat": 39,
+      "lon": 124
+    },
+    {
+      "key": "rgbnir/2021/N39/ESA_WorldCover_10m_2021_v200_N39E125_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N39/ESA_WorldCover_10m_2021_v200_N39E125_S2RGBNIR.tif",
+      "bytes": 602151709,
+      "lat": 39,
+      "lon": 125
+    },
+    {
+      "key": "rgbnir/2021/N39/ESA_WorldCover_10m_2021_v200_N39E126_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N39/ESA_WorldCover_10m_2021_v200_N39E126_S2RGBNIR.tif",
+      "bytes": 693437552,
+      "lat": 39,
+      "lon": 126
+    },
+    {
+      "key": "rgbnir/2021/N39/ESA_WorldCover_10m_2021_v200_N39E127_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N39/ESA_WorldCover_10m_2021_v200_N39E127_S2RGBNIR.tif",
+      "bytes": 463319547,
+      "lat": 39,
+      "lon": 127
+    },
+    {
+      "key": "rgbnir/2021/N39/ESA_WorldCover_10m_2021_v200_N39E128_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N39/ESA_WorldCover_10m_2021_v200_N39E128_S2RGBNIR.tif",
+      "bytes": 13470295,
+      "lat": 39,
+      "lon": 128
+    },
+    {
+      "key": "rgbnir/2021/N40/ESA_WorldCover_10m_2021_v200_N40E124_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N40/ESA_WorldCover_10m_2021_v200_N40E124_S2RGBNIR.tif",
+      "bytes": 621299227,
+      "lat": 40,
+      "lon": 124
+    },
+    {
+      "key": "rgbnir/2021/N40/ESA_WorldCover_10m_2021_v200_N40E125_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N40/ESA_WorldCover_10m_2021_v200_N40E125_S2RGBNIR.tif",
+      "bytes": 687072073,
+      "lat": 40,
+      "lon": 125
+    },
+    {
+      "key": "rgbnir/2021/N40/ESA_WorldCover_10m_2021_v200_N40E126_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N40/ESA_WorldCover_10m_2021_v200_N40E126_S2RGBNIR.tif",
+      "bytes": 698956411,
+      "lat": 40,
+      "lon": 126
+    },
+    {
+      "key": "rgbnir/2021/N40/ESA_WorldCover_10m_2021_v200_N40E127_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N40/ESA_WorldCover_10m_2021_v200_N40E127_S2RGBNIR.tif",
+      "bytes": 676711306,
+      "lat": 40,
+      "lon": 127
+    },
+    {
+      "key": "rgbnir/2021/N40/ESA_WorldCover_10m_2021_v200_N40E128_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N40/ESA_WorldCover_10m_2021_v200_N40E128_S2RGBNIR.tif",
+      "bytes": 569823661,
+      "lat": 40,
+      "lon": 128
+    },
+    {
+      "key": "rgbnir/2021/N40/ESA_WorldCover_10m_2021_v200_N40E129_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N40/ESA_WorldCover_10m_2021_v200_N40E129_S2RGBNIR.tif",
+      "bytes": 178075180,
+      "lat": 40,
+      "lon": 129
+    },
+    {
+      "key": "rgbnir/2021/N41/ESA_WorldCover_10m_2021_v200_N41E124_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N41/ESA_WorldCover_10m_2021_v200_N41E124_S2RGBNIR.tif",
+      "bytes": 610890023,
+      "lat": 41,
+      "lon": 124
+    },
+    {
+      "key": "rgbnir/2021/N41/ESA_WorldCover_10m_2021_v200_N41E125_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N41/ESA_WorldCover_10m_2021_v200_N41E125_S2RGBNIR.tif",
+      "bytes": 641406906,
+      "lat": 41,
+      "lon": 125
+    },
+    {
+      "key": "rgbnir/2021/N41/ESA_WorldCover_10m_2021_v200_N41E126_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N41/ESA_WorldCover_10m_2021_v200_N41E126_S2RGBNIR.tif",
+      "bytes": 663690422,
+      "lat": 41,
+      "lon": 126
+    },
+    {
+      "key": "rgbnir/2021/N41/ESA_WorldCover_10m_2021_v200_N41E127_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N41/ESA_WorldCover_10m_2021_v200_N41E127_S2RGBNIR.tif",
+      "bytes": 670981446,
+      "lat": 41,
+      "lon": 127
+    },
+    {
+      "key": "rgbnir/2021/N41/ESA_WorldCover_10m_2021_v200_N41E128_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N41/ESA_WorldCover_10m_2021_v200_N41E128_S2RGBNIR.tif",
+      "bytes": 658504582,
+      "lat": 41,
+      "lon": 128
+    },
+    {
+      "key": "rgbnir/2021/N41/ESA_WorldCover_10m_2021_v200_N41E129_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N41/ESA_WorldCover_10m_2021_v200_N41E129_S2RGBNIR.tif",
+      "bytes": 544884004,
+      "lat": 41,
+      "lon": 129
+    },
+    {
+      "key": "rgbnir/2021/N41/ESA_WorldCover_10m_2021_v200_N41E130_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N41/ESA_WorldCover_10m_2021_v200_N41E130_S2RGBNIR.tif",
+      "bytes": 6801668,
+      "lat": 41,
+      "lon": 130
+    },
+    {
+      "key": "rgbnir/2021/N42/ESA_WorldCover_10m_2021_v200_N42E124_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N42/ESA_WorldCover_10m_2021_v200_N42E124_S2RGBNIR.tif",
+      "bytes": 627740967,
+      "lat": 42,
+      "lon": 124
+    },
+    {
+      "key": "rgbnir/2021/N42/ESA_WorldCover_10m_2021_v200_N42E125_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N42/ESA_WorldCover_10m_2021_v200_N42E125_S2RGBNIR.tif",
+      "bytes": 674348698,
+      "lat": 42,
+      "lon": 125
+    },
+    {
+      "key": "rgbnir/2021/N42/ESA_WorldCover_10m_2021_v200_N42E126_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N42/ESA_WorldCover_10m_2021_v200_N42E126_S2RGBNIR.tif",
+      "bytes": 666623341,
+      "lat": 42,
+      "lon": 126
+    },
+    {
+      "key": "rgbnir/2021/N42/ESA_WorldCover_10m_2021_v200_N42E127_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N42/ESA_WorldCover_10m_2021_v200_N42E127_S2RGBNIR.tif",
+      "bytes": 654368298,
+      "lat": 42,
+      "lon": 127
+    },
+    {
+      "key": "rgbnir/2021/N42/ESA_WorldCover_10m_2021_v200_N42E128_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N42/ESA_WorldCover_10m_2021_v200_N42E128_S2RGBNIR.tif",
+      "bytes": 648502794,
+      "lat": 42,
+      "lon": 128
+    },
+    {
+      "key": "rgbnir/2021/N42/ESA_WorldCover_10m_2021_v200_N42E129_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N42/ESA_WorldCover_10m_2021_v200_N42E129_S2RGBNIR.tif",
+      "bytes": 653080472,
+      "lat": 42,
+      "lon": 129
+    },
+    {
+      "key": "rgbnir/2021/N42/ESA_WorldCover_10m_2021_v200_N42E130_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N42/ESA_WorldCover_10m_2021_v200_N42E130_S2RGBNIR.tif",
+      "bytes": 496583084,
+      "lat": 42,
+      "lon": 130
+    },
+    {
+      "key": "rgbnir/2021/N42/ESA_WorldCover_10m_2021_v200_N42E131_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N42/ESA_WorldCover_10m_2021_v200_N42E131_S2RGBNIR.tif",
+      "bytes": 160007526,
+      "lat": 42,
+      "lon": 131
+    },
+    {
+      "key": "rgbnir/2021/N43/ESA_WorldCover_10m_2021_v200_N43E124_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N43/ESA_WorldCover_10m_2021_v200_N43E124_S2RGBNIR.tif",
+      "bytes": 636500614,
+      "lat": 43,
+      "lon": 124
+    },
+    {
+      "key": "rgbnir/2021/N43/ESA_WorldCover_10m_2021_v200_N43E125_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N43/ESA_WorldCover_10m_2021_v200_N43E125_S2RGBNIR.tif",
+      "bytes": 661833726,
+      "lat": 43,
+      "lon": 125
+    },
+    {
+      "key": "rgbnir/2021/N43/ESA_WorldCover_10m_2021_v200_N43E126_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N43/ESA_WorldCover_10m_2021_v200_N43E126_S2RGBNIR.tif",
+      "bytes": 644365780,
+      "lat": 43,
+      "lon": 126
+    },
+    {
+      "key": "rgbnir/2021/N43/ESA_WorldCover_10m_2021_v200_N43E127_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N43/ESA_WorldCover_10m_2021_v200_N43E127_S2RGBNIR.tif",
+      "bytes": 652895355,
+      "lat": 43,
+      "lon": 127
+    },
+    {
+      "key": "rgbnir/2021/N43/ESA_WorldCover_10m_2021_v200_N43E128_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N43/ESA_WorldCover_10m_2021_v200_N43E128_S2RGBNIR.tif",
+      "bytes": 641294524,
+      "lat": 43,
+      "lon": 128
+    },
+    {
+      "key": "rgbnir/2021/N43/ESA_WorldCover_10m_2021_v200_N43E129_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N43/ESA_WorldCover_10m_2021_v200_N43E129_S2RGBNIR.tif",
+      "bytes": 649044930,
+      "lat": 43,
+      "lon": 129
+    },
+    {
+      "key": "rgbnir/2021/N43/ESA_WorldCover_10m_2021_v200_N43E130_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N43/ESA_WorldCover_10m_2021_v200_N43E130_S2RGBNIR.tif",
+      "bytes": 664481876,
+      "lat": 43,
+      "lon": 130
+    },
+    {
+      "key": "rgbnir/2021/N43/ESA_WorldCover_10m_2021_v200_N43E131_S2RGBNIR.tif",
+      "url": "https://esa-worldcover-s2.s3.eu-central-1.amazonaws.com/rgbnir/2021/N43/ESA_WorldCover_10m_2021_v200_N43E131_S2RGBNIR.tif",
+      "bytes": 642728654,
+      "lat": 43,
+      "lon": 131
+    }
+  ],
+  "coverageCheckpoints": {
+    "Seoul": [
+      147,
+      149,
+      150
+    ],
+    "Busan": [
+      162,
+      158,
+      136
+    ],
+    "Pyongyang": [
+      87,
+      110,
+      99
+    ],
+    "Sinuiju": [
+      185,
+      172,
+      153
+    ],
+    "Rason": [
+      62,
+      81,
+      57
+    ],
+    "Jeju": [
+      98,
+      105,
+      108
+    ],
+    "Marado": [
+      125,
+      135,
+      105
+    ],
+    "Ulleungdo": [
+      94,
+      101,
+      81
+    ],
+    "Dokdo": [
+      65,
+      80,
+      80
+    ],
+    "Baengnyeongdo": [
+      96,
+      94,
+      75
+    ]
+  },
+  "displayStretch": {
+    "reflectanceWhite": 3000,
+    "gamma": 1.8
+  },
+  "note": "Annual median composite; not a single acquisition or current operational imagery. Zero/nodata areas have no observations; geographic bounds do not guarantee observation at every pixel.",
+  "verifiedOutputZooms": [
+    0,
+    5,
+    10,
+    14
+  ],
+  "packBytes": 1781683825,
+  "packSha256": "d9b8ec9d0270ad9fb08810361877a1b6eb3f602ea27aa507c4706ab63f2d49c5"
+}
