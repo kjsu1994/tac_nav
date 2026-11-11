@@ -152,6 +152,9 @@ private fun featureLine(points: List<GeoPoint>)=Feature.fromGeometry(LineString.
     } }
     LaunchedEffect(style, fix, facing) {
         style?.getSourceAs<GeoJsonSource>("fix")?.setGeoJson(FeatureCollection.fromFeatures(listOfNotNull(fix?.let { Feature.fromGeometry(it.point.mapPoint()) })))
+        style?.getLayerAs<CircleLayer>("fix-dot")?.setProperties(
+            circleColor(if (fix?.cached == true) "#ffce73" else "#66d8d0"),
+        )
         style?.getLayerAs<SymbolLayer>("fix-bearing")?.setProperties(
             iconRotate((facing ?: 0.0).toFloat()), iconOpacity(if (facing != null) 1f else 0f),
         )
@@ -175,7 +178,7 @@ private fun featureLine(points: List<GeoPoint>)=Feature.fromGeometry(LineString.
     LaunchedEffect(map, style, followLocation, followHeading, fix, facing, request, lifecycleState) {
         val ready = map ?: return@LaunchedEffect
         val position = fix ?: return@LaunchedEffect
-        if (style == null || !followLocation || request != null || position.ageSeconds() > 10 ||
+        if (style == null || !followLocation || request != null || !position.isLive() ||
             lifecycleState != Lifecycle.State.RESUMED) return@LaunchedEffect
         val camera = ready.cameraPosition
         val bearing = if (followHeading) facing ?: camera.bearing else 0.0

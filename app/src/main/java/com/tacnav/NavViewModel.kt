@@ -43,7 +43,7 @@ class NavViewModel(application: Application) : AndroidViewModel(application) {
                 // Finish creating the row even if the screen closes during the insert.
                 withContext(NonCancellable) { id=app.database.dao().insertTrack(Track()) }
                 fixes.collect { fix ->
-                    if(!foreground || fix.ageSeconds()>10 || fix.elapsedNanos<=lastReceived) return@collect
+                    if(!foreground || !fix.isLive() || fix.elapsedNanos<=lastReceived) return@collect
                     if(lastReceived>0 && fix.elapsedNanos-lastReceived>10_000_000_000L) segment++
                     lastReceived=fix.elapsedNanos
                     if(lastSaved>0 && fix.elapsedNanos-lastSaved<settings.value.trackIntervalSeconds*1_000_000_000L) return@collect

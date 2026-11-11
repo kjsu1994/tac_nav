@@ -15,25 +15,29 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlin.math.*
 
-data class PositionFix(val point: GeoPoint, val accuracy: Float, val elapsedNanos: Long, val time: Long, val altitude: Double?, val course: Float?) {
+data class PositionFix(val point: GeoPoint, val accuracy: Float, val elapsedNanos: Long, val time: Long, val altitude: Double?, val course: Float?, val cached: Boolean = false) {
     fun ageSeconds() = ((SystemClock.elapsedRealtimeNanos() - elapsedNanos) / 1_000_000_000L).coerceAtLeast(0)
+    fun isLive() = !cached && ageSeconds() <= 10
 }
 fun Location.toFix(): PositionFix? = runCatching {
-    require(hasAccuracy() && accuracy.isFinite() && accuracy >= 0 && elapsedRealtimeNanos > 0)
+    require(hasAccuracy() && accuracy.isFinite() && accuracy >= 0 && elapsedRealtimeNanos > 0 && elapsedRealtimeNanos <= SystemClock.elapsedRealtimeNanos() && time > 0)
     PositionFix(GeoPoint(latitude,longitude),accuracy,elapsedRealtimeNanos,time,altitude.takeIf { hasAltitude() && it.isFinite() },bearing.takeIf { hasBearing() && speed >= 1f })
 }.getOrNull()
 fun Context.hasPreciseLocation() = ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 class LocationSensors(private val context: Context) {
-    fun recentPosition(): PositionFix? {
+    fun lastPosition(): PositionFix? {
         if (!context.hasPreciseLocation()) return null
         val manager = context.getSystemService(LocationManager::class.java)
-        return try {
-            manager.getLastKnownLocation(LocationManager.GPS_PROVIDER)?.toFix()?.takeIf { it.ageSeconds() <= 10 }
-        } catch (_: SecurityException) {
-            null
-        } catch (_: IllegalArgumentException) {
-            null
-        }
+        // Reading cached fixes never activates a network or location provider.
+        return listOf(LocationManager.GPS_PROVIDER, LocationManager.PASSIVE_PROVIDER).mapNotNull { provider ->
+            try {
+                manager.getLastKnownLocation(provider)?.toFix()?.copy(cached = true)
+            } catch (_: SecurityException) {
+                null
+            } catch (_: IllegalArgumentException) {
+                null
+            }
+        }.maxByOrNull { it.elapsedNanos }
     }
 
     fun positions() = callbackFlow {

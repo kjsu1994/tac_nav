@@ -135,10 +135,16 @@ private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%
                 precise=context.hasPreciseLocation()
                 if(precise) launch {
                     try {
-                        locationSensors.recentPosition()?.let { cached ->
-                            if (cached.elapsedNanos > (fix?.elapsedNanos ?: 0)) fix = cached
+                        locationSensors.lastPosition()?.let { cached ->
+                            if (fix?.isLive() != true && cached.elapsedNanos > (fix?.elapsedNanos ?: 0)) fix = cached
                         }
-                        locationSensors.positions().collect { fix = it; vm.recordFix(it) }
+                        locationSensors.positions().collect { received ->
+                            val current = fix
+                            if (current == null || received.elapsedNanos >= current.elapsedNanos || current.cached && received.isLive()) {
+                                fix = received.copy(cached = !received.isLive())
+                            }
+                            vm.recordFix(received)
+                        }
                     } catch (e: Exception) {
                         if (e is CancellationException) throw e
                         waitingForLocation = false
@@ -173,9 +179,15 @@ private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%
             }
             if (!waitingForLocation || !precise) return@LaunchedEffect
             lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                val preview = fix?.takeIf { it.isLive() } ?:
+                    listOfNotNull(fix, locationSensors.lastPosition()).maxByOrNull { it.elapsedNanos }
+                if (preview != null && !preview.isLive()) {
+                    fix = preview.copy(cached = true)
+                    vm.centerOnLocation(preview.point)
+                }
                 val position = withTimeoutOrNull(90_000) {
                     snapshotFlow {
-                        if (gpsEnabled) fix?.takeIf { it.ageSeconds() <= 10 } else null
+                        if (gpsEnabled) fix?.takeIf { it.isLive() } else null
                     }.filterNotNull().first()
                 }
                 waitingForLocation = false
@@ -196,9 +208,9 @@ private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%
                 return
             }
             precise = context.hasPreciseLocation()
+            gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
             waitingForLocation = true
-            permissionEpoch++
-            if (!context.hasPreciseLocation()) {
+            if (!precise) {
                 requestPermissions.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION))
             } else if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 locationSettings.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
@@ -214,9 +226,9 @@ private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%
             fix?.let { MagneticModel.declination(it.point, it.altitude ?: 0.0) }
         }
         val facing = heading?.takeIf {
-            precise && gpsEnabled && (age ?: 11) <= 10 && it.second >= SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM
+            precise && gpsEnabled && fix?.isLive() == true && it.second >= SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM
         }?.let { sensor -> declination?.let { Coordinates.normalize(sensor.first + it) } }
-        val status=when { !precise->"정확한 위치 권한 필요";!gpsEnabled->"GPS 꺼짐";fix==null->"위성 위치 수신 대기";age!=null && age>10->"위치 갱신 중단 ${age}초";else->"GPS ±${fix!!.accuracy.roundToInt()} m · ${age}초 전" }
+        val status=when { !precise->"정확한 위치 권한 필요";!gpsEnabled->"GPS 꺼짐";fix==null->"위성 위치 수신 대기";fix!!.cached->"저장 위치 · ${stamp(fix!!.time)}";age!=null && age>10->"위치 갱신 중단 ${age}초";else->"GPS ±${fix!!.accuracy.roundToInt()} m · ${age}초 전" }
         Scaffold(
             topBar={ Column(Modifier.statusBarsPadding()) {
                 Row(Modifier.fillMaxWidth().padding(horizontal=12.dp,vertical=4.dp),horizontalArrangement=Arrangement.SpaceBetween,verticalAlignment=Alignment.CenterVertically) {
@@ -251,6 +263,14 @@ private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%
                         {vm.center.value=it},{gridSpacing=it},{vm.message.value=it},Modifier.fillMaxSize())
                     Text("＋",fontSize=36.sp,color=Amber,modifier=Modifier.align(Alignment.Center).semantics { contentDescription="지도 중심 십자선" })
                     Column(Modifier.align(Alignment.TopCenter).fillMaxWidth().padding(12.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
+                        if (fix?.cached == true) Surface(
+                            modifier = Modifier.align(Alignment.End).semantics { contentDescription = "저장 위치 수신 시각" },
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surface.copy(alpha = .96f),
+                        ) {
+                            Text("저장 위치 · ${stamp(fix!!.time)}", Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                style = MaterialTheme.typography.labelSmall, color = Amber)
+                        }
                         if (showGpsPanel) Surface(shape=RoundedCornerShape(12.dp),color=MaterialTheme.colorScheme.surface.copy(alpha=.96f)) {
                             Column(Modifier.fillMaxWidth().padding(12.dp),verticalArrangement=Arrangement.spacedBy(4.dp)) {
                                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween,verticalAlignment=Alignment.CenterVertically) {
@@ -258,7 +278,7 @@ private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%
                                     Text("격자 $gridSpacing",style=MaterialTheme.typography.labelSmall)
                                 }
                                 fix?.let { position ->
-                                    val label=if(precise && gpsEnabled && (age ?: 11)<=10) "현위치" else "마지막 수신"
+                                    val label=if(precise && gpsEnabled && position.isLive()) "현위치" else "저장 위치"
                                     Text("$label MGRS ${Coordinates.mgrs(position.point,settings.mgrsDigits)}",fontFamily=FontFamily.Monospace,style=MaterialTheme.typography.bodySmall)
                                 }
                             }
@@ -296,7 +316,7 @@ private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%
                                 else Text("◎", fontSize = 26.sp)
                             }
                         }
-                        if(showCoordinatePanel && target!=null && fix!=null) {
+                        if(showCoordinatePanel && target!=null && fix?.isLive()==true) {
                             val rb=Coordinates.range(fix!!.point,target!!)
                             val declination=MagneticModel.declination(fix!!.point,fix!!.altitude ?: 0.0)
                             val bearing=Coordinates.bearing(rb.trueDegrees,settings.northReference,declination,Coordinates.convergence(fix!!.point))
@@ -417,19 +437,20 @@ private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%
         HorizontalDivider()
         Text("현위치 · 방향",fontWeight=FontWeight.Bold)
         if(fix==null) Text("GPS 수신 대기 · 지도에서 위치 권한을 허용하세요.") else {
+            if (fix.cached) Text("저장 위치 · ${stamp(fix.time)}", color = MaterialTheme.colorScheme.tertiary)
             Text(Coordinates.mgrs(fix.point,settings.mgrsDigits),fontFamily=FontFamily.Monospace)
             Text(Coordinates.format(fix.point,settings.coordinateFormat),fontFamily=FontFamily.Monospace)
             Text("±${fix.accuracy.roundToInt()} m · ${age ?: 0}초 전",color=if((age ?: 0)>10) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary)
             val declination=MagneticModel.declination(fix.point,fix.altitude ?: 0.0)
             val convergence=Coordinates.convergence(fix.point)
             Text("자기편각 ${declination?.let { String.format(Locale.US,"%.2f°",it) } ?: "모델 유효기간 밖"} · 도편각 ${String.format(Locale.US,"%.2f°",convergence)}",style=MaterialTheme.typography.bodySmall)
-            val sensorHeading=heading?.takeIf { it.second>=SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM }
+            val sensorHeading=heading?.takeIf { fix.isLive() && it.second>=SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM }
             val trueHeading=if(sensorHeading!=null && declination!=null) Coordinates.normalize(sensorHeading.first+declination) else null
             val displayed=trueHeading?.let { Coordinates.bearing(it,settings.northReference,declination,convergence) }
             Text("나침반 ${Coordinates.bearingText(displayed,settings.showMils)} · ${settings.northReference.label}")
             if(sensorHeading==null) Text("방향 센서 없음 또는 신뢰도 낮음 · 금속·자석을 피하고 센서를 보정하세요.",style=MaterialTheme.typography.bodySmall)
             fix.course?.let { Text("이동 방향 ${Coordinates.bearingText(it.toDouble(),settings.showMils)} · 진북",style=MaterialTheme.typography.bodySmall) }
-            fix.altitude?.let { Text("GNSS 타원체고 ${distance(it)} · 해발고도와 다릅니다.",style=MaterialTheme.typography.bodySmall) }
+            fix.altitude?.let { Text("WGS84 타원체고 ${distance(it)} · 해발고도와 다릅니다.",style=MaterialTheme.typography.bodySmall) }
         }
         Text("자기편각 모델: WMM2025 · 2025~2029년 유효",style=MaterialTheme.typography.labelSmall)
     }
@@ -461,7 +482,7 @@ private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%
                 Row { TextButton(onClick={onSelect(map)},enabled=!busy) { Text("사용") };if(map.builtIn) Text("앱 기본 제공",Modifier.padding(12.dp),style=MaterialTheme.typography.labelMedium) else TextButton(onClick={onDelete(map)},enabled=!busy) { Text("삭제") } }
             } }
         }
-        item { HorizontalDivider();Spacer(Modifier.height(12.dp));Text("보호 · 앱 정보",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("인터넷 권한 없음\n자동 백업·기기 이전 제외\n화면 캡처·최근 앱 미리보기 보호\n기기 잠금·앱 전용 저장소 사용\nGeoJSON 반출 파일은 평문\nWMM2025 유효기간: 2029-12-31\nTac_Nav 0.1.1 · 현장 검증 전 개발 버전",style=MaterialTheme.typography.bodySmall) }
+        item { HorizontalDivider();Spacer(Modifier.height(12.dp));Text("보호 · 앱 정보",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("인터넷 권한 없음\n자동 백업·기기 이전 제외\n화면 캡처·최근 앱 미리보기 보호\n기기 잠금·앱 전용 저장소 사용\nGeoJSON 반출 파일은 평문\nWMM2025 유효기간: 2029-12-31\nTac_Nav 0.1.2 · 현장 검증 전 개발 버전",style=MaterialTheme.typography.bodySmall) }
     }
 }
 @Composable private fun MapLicenseDialog(map: InstalledMap,onClose: ()->Unit) {

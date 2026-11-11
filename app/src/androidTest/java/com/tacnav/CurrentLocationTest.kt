@@ -1,4 +1,4 @@
-﻿package com.tacnav
+package com.tacnav
 
 import android.Manifest
 import android.os.Build
@@ -33,6 +33,12 @@ class CurrentLocationTest {
             mapView(view.getChildAt(i))?.let { return it }
         }
         return null
+    }
+
+    private fun gpsRegistration(): String {
+        val current = shell("dumpsys location").substringBefore("Historical Aggregate")
+        val gps = current.substringAfter("gps provider:")
+        return gps.lineSequence().first { it.contains("com.tacnav") }.trim()
     }
 
     private fun waitForCamera(point: GeoPoint) {
@@ -108,11 +114,24 @@ class CurrentLocationTest {
 
             // An old fix must not be mistaken for a current one.
             Thread.sleep(11_000)
+            compose.activityRule.scenario.recreate()
+            compose.onNodeWithContentDescription("저장 위치 수신 시각").assertIsDisplayed()
+            val registration = gpsRegistration()
             compose.onNodeWithContentDescription("현위치").performClick()
             compose.onNode(hasContentDescription("현위치") and SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.StateDescription, "GPS 수신 대기 · 누르면 취소")).assertExists()
+            waitForCamera(GeoPoint(35.1797, 129.0757))
+            compose.onNodeWithContentDescription("저장 위치 수신 시각").assertIsDisplayed()
+            assertEquals("Location button must preserve the existing GPS listener", registration, gpsRegistration())
+            compose.runOnIdle {
+                mapView(compose.activity.window.decorView)!!.getMapAsync { map ->
+                    assertEquals(android.graphics.Color.parseColor("#ffce73"),
+                        map.style!!.getLayerAs<org.maplibre.android.style.layers.CircleLayer>("fix-dot")!!.circleColorAsInt)
+                }
+            }
             shell("cmd location providers set-test-provider-location gps --location 35.1796,129.0756 --accuracy 5")
             waitForCamera(busan)
             compose.onNodeWithContentDescription("현위치").assertIsDisplayed()
+            compose.onNodeWithContentDescription("저장 위치 수신 시각").assertDoesNotExist()
         } finally {
             shell("cmd location providers remove-test-provider gps")
             shell("appops set com.android.shell android:mock_location ${if (mockWasAllowed) "allow" else "default"}")
