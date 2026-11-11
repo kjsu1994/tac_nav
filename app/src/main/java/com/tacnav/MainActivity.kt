@@ -2,9 +2,11 @@ package com.tacnav
 
 import android.Manifest
 import android.app.Activity
+import android.content.Intent
 import android.hardware.SensorManager
 import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
 import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.activity.ComponentActivity
@@ -30,12 +32,17 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.stateDescription
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.sample
+import kotlinx.coroutines.flow.distinctUntilChanged
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -58,7 +65,7 @@ private val Aqua=Color(0xFF66D8D0)
 private fun stamp(time: Long)=SimpleDateFormat("MM/dd HH:mm:ss",Locale.KOREA).format(Date(time))
 private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%.2f km",meters/1000) else String.format(Locale.US,"%.0f m",meters)
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 @Composable fun TacNavApp(vm: NavViewModel=viewModel()) {
     val settings by vm.settings.collectAsStateWithLifecycle()
     val dark=when(settings.theme){ThemeMode.DARK->true;ThemeMode.LIGHT->false;ThemeMode.SYSTEM->isSystemInDarkTheme()}
@@ -69,6 +76,12 @@ private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%
         val lifecycle=LocalLifecycleOwner.current.lifecycle
         var page by rememberSaveable { mutableStateOf("지도") }
         var showCoordinatePanel by rememberSaveable { mutableStateOf(false) }
+        var showGpsPanel by rememberSaveable { mutableStateOf(false) }
+        var waitingForLocation by rememberSaveable { mutableStateOf(false) }
+        var followLocation by rememberSaveable { mutableStateOf(false) }
+        var followHeading by rememberSaveable { mutableStateOf(false) }
+        val locationSensors = remember(context) { LocationSensors(context) }
+        val locationManager = remember(context) { context.getSystemService(LocationManager::class.java) }
         var mapLicense by remember { mutableStateOf<InstalledMap?>(null) }
         var permissionEpoch by remember { mutableIntStateOf(0) }
         var precise by remember { mutableStateOf(context.hasPreciseLocation()) }
@@ -95,7 +108,24 @@ private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%
         var exportConfirmation by remember { mutableStateOf(false) }
         var deleteConfirmation by remember { mutableStateOf<Pair<String,()->Unit>?>(null) }
         val snack=remember { SnackbarHostState() }
-        val requestPermissions=rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissionEpoch++ }
+        val locationSettings = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (waitingForLocation && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                waitingForLocation = false
+                followHeading = false
+                vm.message.value = "기기 설정에서 위치를 켜세요."
+            }
+        }
+        val requestPermissions = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            precise = context.hasPreciseLocation()
+            permissionEpoch++
+            if (waitingForLocation && !precise) {
+                waitingForLocation = false
+                followHeading = false
+                vm.message.value = "정확한 위치 권한을 허용한 뒤 다시 시도하세요."
+            } else if (waitingForLocation && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                locationSettings.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            }
+        }
         val importMap=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { it?.let(vm::importMap) }
         val importData=rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { it?.let(vm::importGeoJson) }
         val exportData=rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/geo+json")) { it?.let(vm::exportGeoJson) }
@@ -104,15 +134,74 @@ private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%
             lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 precise=context.hasPreciseLocation()
                 if(precise) launch {
-                    try { LocationSensors(context).positions().collect { fix=it;vm.recordFix(it) } }
-                    catch(e: Exception) { if(e is CancellationException) throw e; vm.message.value="GPS를 사용할 수 없습니다. 위치 권한과 설정을 확인하세요." }
+                    try {
+                        locationSensors.recentPosition()?.let { cached ->
+                            if (cached.elapsedNanos > (fix?.elapsedNanos ?: 0)) fix = cached
+                        }
+                        locationSensors.positions().collect { fix = it; vm.recordFix(it) }
+                    } catch (e: Exception) {
+                        if (e is CancellationException) throw e
+                        waitingForLocation = false
+                        followLocation = false
+                        followHeading = false
+                        vm.message.value = "GPS를 사용할 수 없습니다. 위치 권한과 설정을 확인하세요."
+                    }
                 }
-                launch { LocationSensors(context).headings { @Suppress("DEPRECATION") activity.windowManager.defaultDisplay.rotation }.collect { heading=it } }
+                launch {
+                    try {
+                        locationSensors.headings { @Suppress("DEPRECATION") activity.windowManager.defaultDisplay.rotation }
+                            .sample(200)
+                            .distinctUntilChanged { previous, next ->
+                                previous.second == next.second && abs((next.first - previous.first + 540) % 360 - 180) < 2
+                            }
+                            .collect { heading = it }
+                    } finally { heading = null }
+                }
                 while(isActive) {
                     tick=System.currentTimeMillis()
-                    gpsEnabled=runCatching { context.getSystemService(LocationManager::class.java).isProviderEnabled(LocationManager.GPS_PROVIDER) }.getOrDefault(false)
+                    gpsEnabled=runCatching { locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) }.getOrDefault(false)
                     delay(1000)
                 }
+            }
+        }
+        LaunchedEffect(waitingForLocation, precise, page, lifecycle) {
+            if (page != "지도") {
+                followLocation = false
+                followHeading = false
+                waitingForLocation = false
+                return@LaunchedEffect
+            }
+            if (!waitingForLocation || !precise) return@LaunchedEffect
+            lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                val position = withTimeoutOrNull(90_000) {
+                    snapshotFlow {
+                        if (gpsEnabled) fix?.takeIf { it.ageSeconds() <= 10 } else null
+                    }.filterNotNull().first()
+                }
+                waitingForLocation = false
+                if (position != null) {
+                    followLocation = true
+                    vm.centerOnLocation(position.point)
+                } else {
+                    followHeading = false
+                    vm.message.value = "GPS를 수신하지 못했습니다. 하늘이 트인 곳에서 다시 시도하세요."
+                }
+            }
+        }
+        fun moveToLocation() {
+            if (waitingForLocation || followLocation) {
+                waitingForLocation = false
+                followLocation = false
+                followHeading = false
+                return
+            }
+            precise = context.hasPreciseLocation()
+            waitingForLocation = true
+            permissionEpoch++
+            if (!context.hasPreciseLocation()) {
+                requestPermissions.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION))
+            } else if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                locationSettings.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
             }
         }
         DisposableEffect(settings.keepScreenOn,page) {
@@ -121,16 +210,29 @@ private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%
         }
         BackHandler(page!="지도") { page="지도" }
         val age=remember(fix,tick) { fix?.ageSeconds() }
+        val declination = remember(fix?.point, fix?.altitude) {
+            fix?.let { MagneticModel.declination(it.point, it.altitude ?: 0.0) }
+        }
+        val facing = heading?.takeIf {
+            precise && gpsEnabled && (age ?: 11) <= 10 && it.second >= SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM
+        }?.let { sensor -> declination?.let { Coordinates.normalize(sensor.first + it) } }
         val status=when { !precise->"정확한 위치 권한 필요";!gpsEnabled->"GPS 꺼짐";fix==null->"위성 위치 수신 대기";age!=null && age>10->"위치 갱신 중단 ${age}초";else->"GPS ±${fix!!.accuracy.roundToInt()} m · ${age}초 전" }
         Scaffold(
             topBar={ Column(Modifier.statusBarsPadding()) {
-                Row(Modifier.fillMaxWidth().padding(horizontal=20.dp,vertical=12.dp),horizontalArrangement=Arrangement.SpaceBetween,verticalAlignment=Alignment.CenterVertically) {
-                    Column { Text("TAC_NAV",fontWeight=FontWeight.Black,letterSpacing=3.sp,fontSize=24.sp); Text("OFFLINE  /  WGS84",style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.primary) }
+                Row(Modifier.fillMaxWidth().padding(horizontal=12.dp,vertical=4.dp),horizontalArrangement=Arrangement.SpaceBetween,verticalAlignment=Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("TAC_NAV",fontWeight=FontWeight.Black,letterSpacing=3.sp,fontSize=24.sp)
+                        Text(if (recording) "● REC" else "OFFLINE  /  WGS84",style=MaterialTheme.typography.labelSmall,color=if (recording) Amber else MaterialTheme.colorScheme.primary)
+                    }
                     if(page=="지도") Row(verticalAlignment=Alignment.CenterVertically) {
-                        if(recording) Text("● REC",color=Amber,style=MaterialTheme.typography.labelSmall)
+                        FilledTonalIconToggleButton(
+                            checked = showGpsPanel,
+                            onCheckedChange = { showGpsPanel = it },
+                            modifier = Modifier.semantics { contentDescription = "GPS 정보" },
+                        ) { Text("GPS", style = MaterialTheme.typography.labelMedium) }
                         FilledTonalIconToggleButton(checked=showCoordinatePanel,onCheckedChange={showCoordinatePanel=it},modifier=Modifier.semantics { contentDescription="지도 중심 좌표 패널" }) { Text("⌖",fontSize=24.sp) }
                         IconButton(onClick={mapLicense=installed},enabled=installed!=null,modifier=Modifier.semantics { contentDescription="지도 출처 및 라이선스" }) { Text("ⓘ",fontSize=22.sp) }
-                    } else Text(if(recording) "● REC" else "LOCAL ONLY",color=if(recording) Amber else MaterialTheme.colorScheme.onSurfaceVariant,style=MaterialTheme.typography.labelMedium)
+                    }
                 }
                 if(busy) LinearProgressIndicator(Modifier.fillMaxWidth())
             } },
@@ -143,10 +245,13 @@ private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%
         ) { padding ->
             when(page) {
                 "지도" -> Box(Modifier.fillMaxSize().padding(padding)) {
-                    MapSurface(installed,settings,center,waypoints,points,fix,cell,target,route,request,{vm.center.value=it},{gridSpacing=it},{vm.message.value=it},Modifier.fillMaxSize())
+                    MapSurface(installed,settings,center,waypoints,points,fix,cell,target,route,request,followLocation,followHeading,facing,
+                        { vm.cameraRequest.compareAndSet(it, null) },
+                        { followLocation = false; followHeading = false; waitingForLocation = false },
+                        {vm.center.value=it},{gridSpacing=it},{vm.message.value=it},Modifier.fillMaxSize())
                     Text("＋",fontSize=36.sp,color=Amber,modifier=Modifier.align(Alignment.Center).semantics { contentDescription="지도 중심 십자선" })
                     Column(Modifier.align(Alignment.TopCenter).fillMaxWidth().padding(12.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
-                        Surface(shape=RoundedCornerShape(12.dp),color=MaterialTheme.colorScheme.surface.copy(alpha=.96f)) {
+                        if (showGpsPanel) Surface(shape=RoundedCornerShape(12.dp),color=MaterialTheme.colorScheme.surface.copy(alpha=.96f)) {
                             Column(Modifier.fillMaxWidth().padding(12.dp),verticalArrangement=Arrangement.spacedBy(4.dp)) {
                                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween,verticalAlignment=Alignment.CenterVertically) {
                                     Text(status,style=MaterialTheme.typography.labelMedium,color=if(age!=null && age>10 || !gpsEnabled) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary)
@@ -164,14 +269,40 @@ private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%
                             }
                         }
                     }
-                    if(showCoordinatePanel) Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(12.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                        if(target!=null && fix!=null) {
+                    Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(12.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                        Column(Modifier.align(Alignment.End), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            FilledTonalIconToggleButton(
+                                checked = followHeading,
+                                onCheckedChange = { enabled ->
+                                    if (enabled && !followLocation && !waitingForLocation) moveToLocation()
+                                    followHeading = enabled
+                                    if (enabled && (heading?.second ?: SensorManager.SENSOR_STATUS_UNRELIABLE) < SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM) vm.message.value = "방향 센서 수신 대기 · 금속·자석을 피하고 센서를 보정하세요."
+                                },
+                                modifier = Modifier.size(48.dp).semantics { contentDescription = "나침반 · 바라보는 방향으로 회전" },
+                            ) { Text("△", fontSize = 26.sp) }
+                            FilledTonalIconToggleButton(
+                                checked = waitingForLocation || followLocation,
+                                onCheckedChange = { moveToLocation() },
+                                modifier = Modifier.size(48.dp).semantics {
+                                    contentDescription = "현위치"
+                                    stateDescription = when {
+                                        waitingForLocation -> "GPS 수신 대기 · 누르면 취소"
+                                        followLocation -> "현위치 추적 중 · 누르면 해제"
+                                        else -> "현위치 추적 꺼짐"
+                                    }
+                                },
+                            ) {
+                                if (waitingForLocation) CircularProgressIndicator(Modifier.size(22.dp), strokeWidth = 2.dp)
+                                else Text("◎", fontSize = 26.sp)
+                            }
+                        }
+                        if(showCoordinatePanel && target!=null && fix!=null) {
                             val rb=Coordinates.range(fix!!.point,target!!)
                             val declination=MagneticModel.declination(fix!!.point,fix!!.altitude ?: 0.0)
                             val bearing=Coordinates.bearing(rb.trueDegrees,settings.northReference,declination,Coordinates.convergence(fix!!.point))
                             Surface(shape=RoundedCornerShape(12.dp),color=MaterialTheme.colorScheme.surface.copy(alpha=.96f)) { Text("선택점 ${distance(rb.meters)} · ${Coordinates.bearingText(bearing,settings.showMils)} ${settings.northReference.label}",Modifier.padding(12.dp),style=MaterialTheme.typography.bodySmall) }
                         }
-                        Surface(shape=RoundedCornerShape(16.dp),color=MaterialTheme.colorScheme.surface.copy(alpha=.98f)) {
+                        if (showCoordinatePanel) Surface(shape=RoundedCornerShape(16.dp),color=MaterialTheme.colorScheme.surface.copy(alpha=.98f)) {
                             Column(Modifier.padding(14.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
                                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween) { Text("지도 중심",style=MaterialTheme.typography.labelSmall);Text("MGRS · ${10.0.pow(5-settings.mgrsDigits).toInt()} m 셀",style=MaterialTheme.typography.labelSmall,color=MaterialTheme.colorScheme.primary) }
                                 Text(Coordinates.mgrs(center,settings.mgrsDigits),fontFamily=FontFamily.Monospace,fontWeight=FontWeight.Bold,fontSize=20.sp)
@@ -179,7 +310,6 @@ private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%
                                 Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                                     OutlinedButton(onClick={naming=center},modifier=Modifier.weight(1f)) { Text("지점 저장") }
                                     OutlinedButton(onClick={if(route.size<100) vm.route.value=route+center else vm.message.value="경유점은 최대 100개입니다."},modifier=Modifier.weight(1f)) { Text("경유점 +") }
-                                    FilledTonalButton(onClick={ if(!precise) requestPermissions.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION)) else if(fix==null || (age ?: 11)>10) vm.message.value="새 GPS 위치를 수신한 뒤 사용할 수 있습니다." else vm.select(fix!!.point) },modifier=Modifier.weight(1f)) { Text("현위치") }
                                 }
                                 if(route.isNotEmpty()) Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween,verticalAlignment=Alignment.CenterVertically) {
                                     Text("경유점 ${route.size}개 · ${distance(route.zipWithNext().sumOf { Coordinates.range(it.first,it.second).meters })}",style=MaterialTheme.typography.labelSmall)
@@ -331,7 +461,7 @@ private fun distance(meters: Double)=if(meters>=1000) String.format(Locale.US,"%
                 Row { TextButton(onClick={onSelect(map)},enabled=!busy) { Text("사용") };if(map.builtIn) Text("앱 기본 제공",Modifier.padding(12.dp),style=MaterialTheme.typography.labelMedium) else TextButton(onClick={onDelete(map)},enabled=!busy) { Text("삭제") } }
             } }
         }
-        item { HorizontalDivider();Spacer(Modifier.height(12.dp));Text("보호 · 앱 정보",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("인터넷 권한 없음\n자동 백업·기기 이전 제외\n화면 캡처·최근 앱 미리보기 보호\n기기 잠금·앱 전용 저장소 사용\nGeoJSON 반출 파일은 평문\nWMM2025 유효기간: 2029-12-31\nTac_Nav 0.1.0 · 현장 검증 전 개발 버전",style=MaterialTheme.typography.bodySmall) }
+        item { HorizontalDivider();Spacer(Modifier.height(12.dp));Text("보호 · 앱 정보",fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp));Text("인터넷 권한 없음\n자동 백업·기기 이전 제외\n화면 캡처·최근 앱 미리보기 보호\n기기 잠금·앱 전용 저장소 사용\nGeoJSON 반출 파일은 평문\nWMM2025 유효기간: 2029-12-31\nTac_Nav 0.1.1 · 현장 검증 전 개발 버전",style=MaterialTheme.typography.bodySmall) }
     }
 }
 @Composable private fun MapLicenseDialog(map: InstalledMap,onClose: ()->Unit) {

@@ -25,7 +25,7 @@ class CoordinatesTest {
     @Test fun mgrsReferenceEiffelTower() {
         // Published Eiffel Tower MGRS reference, independent of a round-trip test.
         val value=Coordinates.mgrs(GeoPoint(48.8582,2.2945),5)
-        assertEquals("31UDQ4825111932",value)
+        assertEquals("31U DQ 48251 11932",value)
     }
     @Test fun mgrsCellSizeAndCenter() {
         val cell=Coordinates.parseMgrs("31U DQ 482 119")
@@ -42,10 +42,10 @@ class CoordinatesTest {
         assertTrue(Coordinates.mgrs(GeoPoint(37.0,125.9999)).startsWith("51S"))
         assertTrue(Coordinates.mgrs(GeoPoint(37.0,126.0001)).startsWith("52S"))
     }
-    @Test fun precisionTruncatesRatherThanRounds() { assertEquals("31UDQ4811",Coordinates.mgrs(GeoPoint(48.8582,2.2945),2)) }
+    @Test fun precisionTruncatesRatherThanRounds() { assertEquals("31U DQ 48 11",Coordinates.mgrs(GeoPoint(48.8582,2.2945),2)) }
     @Test fun localeDoesNotChangeMgrsDigits() {
         val previous=Locale.getDefault()
-        try { Locale.setDefault(Locale.forLanguageTag("ar-EG"));assertEquals("31UDQ4825111932",Coordinates.mgrs(GeoPoint(48.8582,2.2945))) }
+        try { Locale.setDefault(Locale.forLanguageTag("ar-EG"));assertEquals("31U DQ 48251 11932",Coordinates.mgrs(GeoPoint(48.8582,2.2945))) }
         finally { Locale.setDefault(previous) }
     }
     @Test fun geodesicReferenceOneDegreeEquator() {

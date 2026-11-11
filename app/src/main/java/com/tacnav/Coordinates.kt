@@ -25,7 +25,7 @@ object Coordinates {
         val value=MGRS.from(point.nga())
         val east=String.format(Locale.US,"%05d",value.easting).take(digits)
         val north=String.format(Locale.US,"%05d",value.northing).take(digits)
-        return "${value.zone}${value.band}${value.column}${value.row}$east$north"
+        return "${value.zone}${value.band} ${value.column}${value.row} $east $north"
     }
     fun parseMgrs(text: String): CoordinateCell {
         val raw = text.replace(Regex("\\s+"), "").uppercase(Locale.ROOT)

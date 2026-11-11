@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
+class CameraRequest(val point: GeoPoint, val zoomToLocation: Boolean = false)
+
 class NavViewModel(application: Application) : AndroidViewModel(application) {
     private val app=application as TacApplication
     val settings=app.settings.flow.stateIn(viewModelScope,SharingStarted.Eagerly,AppSettings())
@@ -21,7 +23,7 @@ class NavViewModel(application: Application) : AndroidViewModel(application) {
     val target=MutableStateFlow<GeoPoint?>(null)
     val cell=MutableStateFlow<CoordinateCell?>(null)
     val route=MutableStateFlow<List<GeoPoint>>(emptyList())
-    val cameraRequest=MutableStateFlow<Pair<Long,GeoPoint>?>(null)
+    val cameraRequest=MutableStateFlow<CameraRequest?>(null)
     val recording=MutableStateFlow(false)
     private val fixes=MutableSharedFlow<PositionFix>()
     private var recordingJob: Job?=null
@@ -64,7 +66,8 @@ class NavViewModel(application: Application) : AndroidViewModel(application) {
     suspend fun recordFix(fix: PositionFix) { if(foreground && recording.value) fixes.emit(fix) }
     init { app.recovery; task { app.settings.update { current -> if(maps.value.any { it.id==current.activeMap }) current else current.copy(activeMap=BUILT_IN_MAP_ID) } } }
     fun updateSettings(change: (AppSettings)->AppSettings) { task { app.settings.update(change) } }
-    fun select(point: GeoPoint, selectedCell: CoordinateCell?=null) { center.value=point; target.value=point; cell.value=selectedCell; cameraRequest.value=System.nanoTime() to point }
+    fun select(point: GeoPoint, selectedCell: CoordinateCell?=null) { center.value=point; target.value=point; cell.value=selectedCell; cameraRequest.value=CameraRequest(point) }
+    fun centerOnLocation(point: GeoPoint) { cameraRequest.value = CameraRequest(point, zoomToLocation = true) }
     fun saveWaypoint(name: String, point: GeoPoint) { task { require(name.trim().length in 1..80) { "지점 이름은 1~80자여야 합니다." }; app.database.dao().insertWaypoint(Waypoint(name=name.trim(),latitude=point.latitude,longitude=point.longitude)); message.value="지점을 저장했습니다." } }
     fun renameWaypoint(w: Waypoint,name: String) { task { require(name.trim().length in 1..80); app.database.dao().updateWaypoint(w.copy(name=name.trim())) } }
     fun deleteWaypoint(w: Waypoint) { task { app.database.dao().deleteWaypoint(w) } }

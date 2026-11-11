@@ -10,6 +10,18 @@ import org.junit.Test
 
 class SettingsScreenTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
+    @Test fun gpsDetailsCanBeHiddenWithoutHidingLocationButton() {
+        compose.onNodeWithText("격자 ", substring = true).assertDoesNotExist()
+        compose.onNodeWithContentDescription("현위치").assertIsDisplayed()
+        compose.onNodeWithContentDescription("GPS 정보").performClick()
+        compose.onNodeWithText("격자 ", substring = true).assertIsDisplayed()
+        compose.activityRule.scenario.recreate()
+        compose.onNodeWithText("격자 ", substring = true).assertIsDisplayed()
+        compose.onNodeWithContentDescription("GPS 정보").performClick()
+        compose.onNodeWithText("격자 ", substring = true).assertDoesNotExist()
+        compose.onNodeWithContentDescription("현위치").assertIsDisplayed()
+    }
+
     @Test fun mapPanelCanBeHiddenAndLicensesOpenOnDemand() {
         compose.onNodeWithText("지도 중심").assertDoesNotExist()
         compose.onNodeWithContentDescription("지도 중심 좌표 패널").performClick()

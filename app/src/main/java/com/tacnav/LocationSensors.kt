@@ -24,6 +24,18 @@ fun Location.toFix(): PositionFix? = runCatching {
 }.getOrNull()
 fun Context.hasPreciseLocation() = ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 class LocationSensors(private val context: Context) {
+    fun recentPosition(): PositionFix? {
+        if (!context.hasPreciseLocation()) return null
+        val manager = context.getSystemService(LocationManager::class.java)
+        return try {
+            manager.getLastKnownLocation(LocationManager.GPS_PROVIDER)?.toFix()?.takeIf { it.ageSeconds() <= 10 }
+        } catch (_: SecurityException) {
+            null
+        } catch (_: IllegalArgumentException) {
+            null
+        }
+    }
+
     fun positions() = callbackFlow {
         val manager=context.getSystemService(LocationManager::class.java)
         if (!context.hasPreciseLocation()) { close(); return@callbackFlow }
